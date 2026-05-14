@@ -1,0 +1,91 @@
+# Phuket Harbour — Cursor Rules
+# Read this file before editing any code in this project.
+
+## Project Overview
+Static single-page website for **Phuket Harbour** — a local Phuket ferry and island tour operator since 1994.
+
+- **Stack**: Vanilla HTML + CSS + JS, single file (`index.html`). No framework, no bundler.
+- **Fonts**: Google Fonts — Playfair Display (headings) + Inter (body). Both already loaded.
+- **Payment**: Omise.js (`cdn.omise.co/omise.js.gz`) — set `OMISE_PUBLIC_KEY` in the script block.
+- **WhatsApp**: Replace ALL instances of `66XXXXXXXXX` with the real Thai mobile number (format: 66XXXXXXXXX, no + or spaces).
+
+## File Structure
+```
+phuket-harbour/
+├── index.html          ← entire site (HTML + CSS + JS, ~1800 lines)
+├── assets/
+│   ├── videos/         ← 6 background MP4s (Git LFS tracked)
+│   │   ├── pexels-maksim-romashkin-12762099 (2160p).mp4
+│   │   ├── pexels-silent-sightseer-11720101 (Original).mp4
+│   │   ├── production_id_5147338 (1080p).mp4
+│   │   ├── pexels-francesco-navarro-6216472 (1080p).mp4
+│   │   ├── pexels-ibrahim-bennett-18110059 (2160p).mp4
+│   │   └── pexels-maksim-romashkin-12762055 (2160p).mp4
+│   └── images/
+│       └── logo-white.png  ← white version of logo for nav/footer (place here)
+```
+
+## Design Tokens (CSS custom properties in :root)
+```
+--navy:    #142864   (primary brand navy)
+--navy-dk: #0d1a40   (darkest navy, used for hero/footer bg)
+--navy-lt: #1e3575   (lighter navy, hover states)
+--coral:   #f07850   (primary accent / CTA colour)
+--coral-dk:#d4603a   (coral hover)
+--coral-lt:#fde8df   (coral tint backgrounds)
+--white:   #ffffff
+--warm:    #faf9f7   (off-white section backgrounds)
+--grey:    #64748b   (body text secondary)
+--border:  #e5e9f0
+--text:    #1c2240   (dark text)
+```
+
+## Key Sections (by HTML id)
+| id | Description |
+|----|-------------|
+| `#nav` | Fixed nav, transparent → darkens on scroll (JS adds `.scrolled` at 80px) |
+| `#hero` | Full-screen cycling video hero with inline SVG logo |
+| `#book-strip` | Quick booking widget below hero (5-column grid on desktop) |
+| `#trust-bar` | 5 trust icons strip |
+| `#services` | 6 service cards |
+| `#compare` | Price comparison table (navy bg) |
+| `#how` | How to book — tabbed (WhatsApp / Online) |
+| `#schedule` | Daily schedule — tabbed (Phi Phi / Krabi / Return) |
+| `#tour` | Phi Phi full-day tour with timeline |
+| `#trust` | About us + trust cards |
+| `#reviews` | 6 review cards |
+| `#faq` | 8 FAQ items using `<details>`/`<summary>` |
+| `#cta` | Navy CTA strip |
+| `#wa-float` | Fixed WhatsApp bubble (bottom-right) |
+| `#modal-overlay` | 4-step booking modal with Omise payment |
+
+## Hero Videos
+- 6 `<video class="hv">` elements inside `.hero-vids`
+- JS cycles them with 1.8s CSS opacity crossfade
+- First video has `preload="auto" loop`, rest have `preload="none"` (lazy)
+- Fallback: if no video loads, hero shows `--navy-dk` solid background
+
+## Booking Modal Flow
+1. Select service (data-svc, data-price attributes)
+2. Date, adults, children, hotel, contact
+3. Card payment via Omise (`processPayment()` → `Omise.createToken()` → `chargeWithToken()`)
+4. Success screen with booking reference
+
+`chargeWithToken(tokenId)` is a stub — wire it to your backend endpoint to actually charge.
+
+## Things to Configure Before Going Live
+- [ ] Replace `66XXXXXXXXX` with real WhatsApp number (5 occurrences)
+- [ ] Replace `pkey_test_YOUR_OMISE_PUBLIC_KEY` with real Omise public key
+- [ ] Implement `chargeWithToken()` → POST to your server-side charge endpoint
+- [ ] Add `logo-white.png` to `assets/images/`
+- [ ] Update canonical URL meta tag (`https://phuket-harbour.com/`)
+- [ ] Replace `og:image` meta with a real image URL
+- [ ] Update footer social links (Facebook, Instagram, TripAdvisor)
+
+## Coding Rules
+- Keep everything in `index.html` — do not split into separate CSS/JS files unless asked
+- Use the existing CSS custom properties; do not hardcode colour hex values
+- Responsive breakpoints: 1024px (tablet) and 768px (mobile) — both already handled
+- All external links must have `target="_blank" rel="noopener noreferrer"`
+- No jQuery, no React, no build tools — plain ES5-compatible JavaScript only
+- Keep the Omise `<script>` loading with `defer` — it must be on the page for payment to work
